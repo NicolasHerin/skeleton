@@ -1,0 +1,37 @@
+version: '3.7'
+
+services:
+    php-fpm:
+        build:
+            context: ./docker/php-fpm
+        working_dir: /srv/www/
+        volumes:
+            - .:/srv/www:cached
+            - ./vendor:/srv/www/vendor:delegated
+            - ./node_modules:/srv/www/node_modules:delegated
+            - ./var/cache
+            - ./var/log
+
+    nginx:
+        build:
+            context: ./docker/nginx
+        depends_on:
+            - php-fpm
+        volumes:
+            - ./public:/srv/www/public:cached
+        ports:
+            - 80:80
+
+    mysql:
+        image: mysql:5.7
+        volumes:
+            - db_data:/var/lib/mysql
+        environment:
+            - MYSQL_ROOT_PASSWORD=root
+        ports:
+          - 3306:3306
+
+volumes:
+    db_data: {}
+    esdata1:
+        driver: local
